@@ -33,20 +33,25 @@ MatchGame.generateCardValues = function () {
 */
 
 MatchGame.renderCards = function(cardValues, $game) {
-  $game.data({flip:  [] });
+  $game.data({"flip":  [] });
+  window.cardArray = [];
   var cardcolor = ["hsl(25, 85%, 65%)", "hsl(55, 85%, 65%)", "hsl(90, 85%, 65%)",
     "hsl(160, 85%, 65%)", "hsl(220, 85%, 65%)", "hsl(265, 85%, 65%)", "hsl(310, 85%, 65%)",
     "hsl(360, 85%, 65%)"];
   $game.empty();
   for (var i = 0; i < cardValues.length; i++) {
     var $card = $('<div class="col-3 card"></div>');
-    $card.data({value: cardValues[i]});
-    $card.data({flipped: false});
-    $card.data({color: cardcolor[cardValues[i] - 1]});
+    $card.data({"value": cardValues[i]});
+    $card.data({"flipped": false});
+    $card.data({"color": cardcolor[cardValues[i] - 1]});
     $game.append($card);
   };
   $('.card').click(function() {
-    MatchGame.flipCard($(this), $game);
+    if ($(this).data('flipped') === false) {
+      MatchGame.flipCard($(this), $game);
+    } else {
+      return;
+    };
   });
 };
 
@@ -62,15 +67,28 @@ MatchGame.flipCard = function($card, $game) {
     $card.css('background-color', $card.data('color'));
     $card.text($card.data('value'));
     $card.data('flipped', true);
-    $game.data('flip').push($card.data('value'));
+    $game.data('flip').push($card);
+    cardArray.push($card.data('value'));
   };
   if ($game.data('flip').length === 2) {
-    if ($game.data('flip')[0] === $game.data('flip')[1]) {
-      $card.css('background-color: rgb(153, 153, 153)');
+    var gameArray = $game.data('flip');
+    if (cardArray[0] === cardArray[1]) {
+      gameArray[0].css('background-color', 'rgb(153, 153, 153)');
+      gameArray[1].css('background-color', 'rgb(153, 153, 153)');
       $game.data('flip', []);
+      cardArray = [];
     } else {
-      $card.data('flipped', false);
+      var wrongCards = function() {
+      gameArray[0].data('flipped', false);
+      gameArray[1].data('flipped', false);
+      gameArray[0].css('background-color', 'rgb(32, 64, 86)');
+      gameArray[1].css('background-color', 'rgb(32, 64, 86)');
+      gameArray[0].text('');
+      gameArray[1].text('');
       $game.data('flip', []);
+      cardArray = [];
+      };
+      setTimeout(wrongCards, 300);
     };
   };
 };
